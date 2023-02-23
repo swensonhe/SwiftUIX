@@ -8,6 +8,7 @@ import SwiftUI
 #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
 
 public class UIHostingTableViewController<SectionModel: Identifiable, ItemType: Identifiable, Data: RandomAccessCollection, SectionHeader: View, SectionFooter: View, RowContent: View>: UITableViewController where Data.Element == ListSection<SectionModel, ItemType> {
+    
     var _isDataDirty: Bool = false {
         didSet {
             isContentOffsetDirty = _isDataDirty
@@ -24,7 +25,7 @@ public class UIHostingTableViewController<SectionModel: Identifiable, ItemType: 
     
     var sectionHeader: (SectionModel) -> SectionHeader
     var sectionFooter: (SectionModel) -> SectionFooter
-    var rowContent: (ItemType) -> RowContent
+    var rowContent: (ItemType, IndexPath) -> RowContent
     
     var scrollViewConfiguration: CocoaScrollViewConfiguration<AnyView> = nil {
         didSet {            
@@ -126,7 +127,7 @@ public class UIHostingTableViewController<SectionModel: Identifiable, ItemType: 
         style: UITableView.Style,
         sectionHeader: @escaping (SectionModel) -> SectionHeader,
         sectionFooter: @escaping (SectionModel) -> SectionFooter,
-        rowContent: @escaping (ItemType) -> RowContent
+        rowContent: @escaping (ItemType, IndexPath) -> RowContent
     ) {
         self.data = data
         self.sectionHeader = sectionHeader
@@ -284,6 +285,7 @@ public class UIHostingTableViewController<SectionModel: Identifiable, ItemType: 
         }
         
         prototypeCell.tableViewController = self
+        prototypeCell.indexPath = indexPath
         prototypeCell.item = data[indexPath]
         prototypeCell.makeContent = rowContent
         

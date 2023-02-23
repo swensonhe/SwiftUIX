@@ -18,7 +18,7 @@ public class UIHostingTableViewCell<ItemType: Identifiable, Content: View>: UITa
     var indexPath: IndexPath?
     
     var item: ItemType!
-    var makeContent: ((ItemType) -> Content)!
+    var makeContent: ((ItemType, IndexPath) -> Content)!
     
     var state: State {
         .init(
@@ -70,7 +70,7 @@ extension UIHostingTableViewCell {
             layoutMargins = .zero
             selectedBackgroundView = .init()
             
-            contentHostingController = UIHostingController(rootView: RootView(base: self))
+            contentHostingController = RestrictedUIHostingController(rootView: RootView(base: self, indexPath: indexPath ?? .init()))
             contentHostingController.view.backgroundColor = .clear
             contentHostingController.view.translatesAutoresizingMaskIntoConstraints = false
             
@@ -86,7 +86,7 @@ extension UIHostingTableViewCell {
                 contentHostingController.view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
             ])
         } else {
-            contentHostingController.rootView = RootView(base: self)
+            contentHostingController.rootView = RootView(base: self, indexPath: indexPath ?? .init())
             contentHostingController.view.invalidateIntrinsicContentSize()
         }
     }
@@ -140,10 +140,10 @@ extension UIHostingTableViewCell {
         private let content: Content
         private let state: State
         
-        init(base: UIHostingTableViewCell<ItemType, Content>) {
+        init(base: UIHostingTableViewCell<ItemType, Content>, indexPath: IndexPath) {
             self._cellProxyBase = .init(base: base)
             self.id = base.item.id
-            self.content = base.makeContent(base.item)
+            self.content = base.makeContent(base.item, indexPath)
             self.state = base.state
         }
         
