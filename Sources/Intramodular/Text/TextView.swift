@@ -29,6 +29,7 @@ public struct TextView<Label: View>: View {
         var textColor: AppKitOrUIKitColor?
 		var tintColor: AppKitOrUIKitColor?
         var kerning: CGFloat?
+        var placeholderColor: AppKitOrUIKitColor?
         var linkForegroundColor: AppKitOrUIKitColor?
         var textContainerInset: AppKitOrUIKitInsets = .init(EdgeInsets.zero)
         #if os(iOS) || os(tvOS) || targetEnvironment(macCatalyst)
@@ -62,9 +63,10 @@ public struct TextView<Label: View>: View {
     }
     
     public var body: some View {
-        return ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
+        ZStack(alignment: Alignment(horizontal: .leading, vertical: .top)) {
             label
                 .font(configuration.font.map(Font.init))
+                .foregroundColor(Color(configuration.placeholderColor ?? .placeholderText))
                 .visible(isEmpty)
                 .animation(.none)
                 .padding(configuration.textContainerInset.edgeInsets)
@@ -521,7 +523,7 @@ extension TextView: DefaultTextInputType where Label == Text {
         onEditingChanged: @escaping (Bool) -> Void = { _ in },
         onCommit: @escaping () -> Void = { }
     ) {
-        self.label = Text(title).foregroundColor(.placeholderText)
+        self.label = Text(title)
         self.text = text
         self.configuration = .init(
             isConstant: false,
@@ -582,6 +584,10 @@ extension TextView {
     public func foregroundColor(_ foregroundColor: Color) -> Self {
         then({ $0.configuration.textColor = foregroundColor.toUIColor() })
     }
+    
+    public func placeholderColor(_ placeholderColor: Color) -> Self {
+        then({ $0.configuration.placeholderColor = placeholderColor.toUIColor() })
+    }
 	
 	public func tint(_ tint: Color) -> Self {
 		then({ $0.configuration.tintColor = tint.toUIColor() })
@@ -600,6 +606,11 @@ extension TextView {
     @_disfavoredOverload
     public func foregroundColor(_ foregroundColor: AppKitOrUIKitColor) -> Self {
         then({ $0.configuration.textColor = foregroundColor })
+    }
+    
+    @_disfavoredOverload
+    public func placeholderColor(_ placeholderColor: AppKitOrUIKitColor) -> Self {
+        then({ $0.configuration.placeholderColor = placeholderColor })
     }
     
     @_disfavoredOverload
